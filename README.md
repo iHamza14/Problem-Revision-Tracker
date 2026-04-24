@@ -204,14 +204,6 @@ Distributed under the **project_license**. See `LICENSE.txt` for more informatio
 
 ## Contact
 
-Harsh Dahiya
-Twitter: [@twitter_handle](https://twitter.com/twitter_handle)
-Email: [email@email_client.com](mailto:email@email_client.com)
-
-Project Link: [https://github.com/Harsh-2005d/practiceCF](https://github.com/Harsh-2005d/practiceCF)
-
----
-
 ## Acknowledgments
 
 * Codeforces for the platform and API
