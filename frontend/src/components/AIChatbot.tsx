@@ -17,7 +17,7 @@ const AIChatbot = () => {
     {
       role: "ai",
       content:
-        "Hey! 👋 I'm your DSA tutor. Ask me about any problem, algorithm, or data structure — I'll guide you toward the solution!",
+        "Hey! I'm your DSA tutor. Ask me about any problem, algorithm, or data structure — I'll guide you toward the solution!",
     },
   ]);
   const [input, setInput] = useState("");

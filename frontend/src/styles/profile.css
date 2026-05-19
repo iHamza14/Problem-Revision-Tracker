@@ -1,6 +1,4 @@
-/* ============================================================
-   Profile Page — Dark glassmorphism
-   ============================================================ */
+
 
 .profile-page {
   min-height: 100vh;
@@ -33,6 +31,32 @@
   flex: 1;
 }
 
+.platform-section {
+  display: grid;
+  gap: 20px;
+}
+
+.platform-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.platform-label {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.platform-divider {
+  height: 1px;
+  background: var(--border-subtle);
+}
+
 .rank {
   font-size: 14px;
   font-weight: 600;
@@ -51,8 +75,28 @@
   transition: opacity var(--transition-fast);
 }
 
-.handle a:hover {
+.handle a:hover,
+.leetcode-handle a:hover {
   opacity: 0.8;
+}
+
+.leetcode-handle {
+  font-size: 22px;
+  font-weight: 800;
+  margin-top: 4px;
+}
+
+.leetcode-handle a {
+  color: #f5c84b;
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+
+.leetcode-rating {
+  color: #f5c84b;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 4px;
 }
 
 .stats {

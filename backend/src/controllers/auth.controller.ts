@@ -6,6 +6,7 @@ import { Request, Response } from "express";
 import { googleOAuthLogin } from "../services/oauth.services";
 import { AuthedRequest } from "../middleware/auth.middleware";
 import { CodeforcesUser, CodeforcesResponse } from "../types/codeforces";
+import { getLeetCodeContestRanking } from "../services/leetcode";
 
 export const googleCallbackController = async (req: Request, res: Response) => {
   try {
@@ -34,10 +35,11 @@ export const googleCallbackController = async (req: Request, res: Response) => {
 
 /** GET /auth/me — returns user info with handle and live CF rating */
 export const meController = async (req: AuthedRequest, res: Response) => {
-  const { userId, email, handle } = req.user!;
+  const { userId, email, handle, leetCodeHandle, handles } = req.user!;
 
   // If user has a CF handle, fetch live rating from CF API
   let rating: number | null = null;
+  let leetCodeRating: number | null = null;
   if (handle) {
     try {
       const cfRes = await fetch(
@@ -52,11 +54,26 @@ export const meController = async (req: AuthedRequest, res: Response) => {
     }
   }
 
+  if (leetCodeHandle) {
+    try {
+      const ranking = await getLeetCodeContestRanking(leetCodeHandle);
+      leetCodeRating =
+        ranking && ranking.attendedContestsCount > 0
+          ? Math.round(ranking.rating)
+          : null;
+    } catch {
+      // LeetCode API might be down, return null rating
+    }
+  }
+
   return res.json({
     userId,
     email,
     handle,
+    leetCodeHandle,
+    handles,
     rating,
+    leetCodeRating,
   });
 };
 

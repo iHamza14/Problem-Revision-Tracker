@@ -26,10 +26,7 @@ const Navbar = () => {
     checkAuth();
   }, []);
 
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [location.pathname]);
+  const closeMenu = () => setMenuOpen(false);
 
   const logout = async () => {
     try {
@@ -60,7 +57,7 @@ const Navbar = () => {
       <nav className="navbar" id="main-navbar">
         <div className="navbar-container">
           {/* Logo */}
-          <Link to="/" className="navbar-logo" id="nav-logo">
+          <Link to="/" className="navbar-logo" id="nav-logo" onClick={closeMenu}>
             PracticeCF
           </Link>
 
@@ -77,7 +74,7 @@ const Navbar = () => {
 
           {/* Nav links */}
           <div className={`navbar-actions ${menuOpen ? "open" : ""}`}>
-            <Link to="/" className={isActive("/") ? "active" : ""}>
+            <Link to="/" className={isActive("/") ? "active" : ""} onClick={closeMenu}>
               Home
             </Link>
 
@@ -86,18 +83,21 @@ const Navbar = () => {
                 <Link
                   to="/dashboard"
                   className={isActive("/dashboard") ? "active" : ""}
+                  onClick={closeMenu}
                 >
                   Dashboard
                 </Link>
                 <Link
                   to="/discuss"
                   className={isActive("/discuss") ? "active" : ""}
+                  onClick={closeMenu}
                 >
                   Discuss
                 </Link>
                 <Link
                   to="/profile"
                   className={isActive("/profile") ? "active" : ""}
+                  onClick={closeMenu}
                 >
                   Profile
                 </Link>
@@ -106,7 +106,10 @@ const Navbar = () => {
 
             {!isLoggedIn ? (
               <button
-                onClick={loginWithGoogle}
+                onClick={() => {
+                  closeMenu();
+                  loginWithGoogle();
+                }}
                 className="nav-btn-login"
                 id="nav-login-btn"
               >
@@ -114,7 +117,10 @@ const Navbar = () => {
               </button>
             ) : (
               <button
-                onClick={logout}
+                onClick={() => {
+                  closeMenu();
+                  void logout();
+                }}
                 className="nav-btn-logout"
                 id="nav-logout-btn"
               >

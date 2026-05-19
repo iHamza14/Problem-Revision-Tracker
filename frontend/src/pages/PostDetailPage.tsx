@@ -26,10 +26,14 @@ type PostDetail = {
   userLiked: boolean;
 };
 
+async function fetchPostDetail(postId: string): Promise<PostDetail> {
+  return getPost(postId);
+}
+
 export default function PostDetailPage() {
   const { postId } = useParams<{ postId: string }>();
   const [post, setPost] = useState<PostDetail | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(postId));
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
 
@@ -37,7 +41,7 @@ export default function PostDetailPage() {
   const fetchPost = async () => {
     if (!postId) return;
     try {
-      const data = await getPost(postId);
+      const data = await fetchPostDetail(postId);
       setPost(data);
       setLiked(data.userLiked);
       setLikeCount(data._count.likes);
@@ -49,7 +53,39 @@ export default function PostDetailPage() {
   };
 
   useEffect(() => {
-    fetchPost();
+    if (!postId) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadPost = async () => {
+      try {
+        const data = await fetchPostDetail(postId);
+
+        if (cancelled) {
+          return;
+        }
+
+        setPost(data);
+        setLiked(data.userLiked);
+        setLikeCount(data._count.likes);
+      } catch (err) {
+        if (!cancelled) {
+          console.error("Failed to fetch post:", err);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    void loadPost();
+
+    return () => {
+      cancelled = true;
+    };
   }, [postId]);
 
   /** Toggle like */

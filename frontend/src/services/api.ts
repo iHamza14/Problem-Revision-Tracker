@@ -36,8 +36,22 @@ export type StatsSummary = {
   streak: number;
 };
 
+export type PostPreview = {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  author: {
+    id: string;
+    email: string;
+    handle?: string | null;
+  };
+  tags: { tag: { id: number; name: string } }[];
+  _count: { likes: number; comments: number };
+};
+
 export type PostListResponse = {
-  posts: any[];
+  posts: PostPreview[];
   total: number;
   page: number;
   totalPages: number;

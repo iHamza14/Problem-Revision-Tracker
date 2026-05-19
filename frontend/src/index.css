@@ -1,10 +1,5 @@
 @import "tailwindcss";
 
-/* ============================================================
-   PracticeCF — Global Design System
-   Dark-mode-first with glassmorphism accents
-   ============================================================ */
-
 /* ─── Design Tokens ─── */
 :root {
   /* Background layers */

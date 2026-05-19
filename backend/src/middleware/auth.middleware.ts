@@ -12,6 +12,8 @@ export interface AuthedRequest extends Request {
     email?: string;
     // Convenience fields resolved from UserPlatformHandle
     handle?: string | null;
+    leetCodeHandle?: string | null;
+    handles?: { platform: string; handle: string }[];
   };
 }
 
@@ -47,11 +49,19 @@ export const checkAuth = async (
     const cfHandle = dbUser.handles.find(
       (h) => h.platform.name.toLowerCase() === "codeforces"
     );
+    const leetCodeHandle = dbUser.handles.find(
+      (h) => h.platform.name.toLowerCase() === "leetcode"
+    );
 
     req.user = {
       userId: dbUser.id,
       email: dbUser.email,
       handle: cfHandle?.handle ?? null,
+      leetCodeHandle: leetCodeHandle?.handle ?? null,
+      handles: dbUser.handles.map((h) => ({
+        platform: h.platform.name,
+        handle: h.handle,
+      })),
     };
 
     next();

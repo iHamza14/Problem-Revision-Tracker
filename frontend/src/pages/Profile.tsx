@@ -16,7 +16,9 @@ import "../styles/profile.css";
 
 type User = {
   handle?: string | null;
+  leetCodeHandle?: string | null;
   rating?: number | null;
+  leetCodeRating?: number | null;
   email?: string;
 };
 
@@ -43,6 +45,7 @@ export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [handle, setHandle] = useState("");
+  const [leetCodeHandle, setLeetCodeHandle] = useState("");
   const [histogram, setHistogram] = useState<number[]>([]);
 
   /* Fetch user info */
@@ -52,6 +55,7 @@ export default function ProfilePage() {
         const res = await api.get<User>("/api/auth/me");
         setUser(res.data);
         setHandle(res.data.handle ?? "");
+        setLeetCodeHandle(res.data.leetCodeHandle ?? "");
       } catch {
         setUser(null);
       } finally {
@@ -63,7 +67,7 @@ export default function ProfilePage() {
 
   /* Fetch histogram when handle exists */
   useEffect(() => {
-    if (!user?.handle) return;
+    if (!user?.handle && !user?.leetCodeHandle) return;
     const fetchHistogram = async () => {
       try {
         const res = await api.get<HistogramResponse>("/api/stats/histogram", {
@@ -75,7 +79,7 @@ export default function ProfilePage() {
       }
     };
     fetchHistogram();
-  }, [user?.handle]);
+  }, [user?.handle, user?.leetCodeHandle]);
 
   if (loading) {
     return (
@@ -119,12 +123,35 @@ export default function ProfilePage() {
     }
   };
 
+  const handleLeetCodeSubmit = async () => {
+    try {
+      await api.post("/api/handle/leetcode", { username: leetCodeHandle });
+      const res = await api.get<User>("/api/auth/me");
+      setUser(res.data);
+    } catch (err) {
+      console.error("LeetCode handle submit failed", err);
+    }
+  };
+
   /* Refresh — re-sync solves */
   const refreshProfile = async () => {
     try {
-      const res = await api.get<{ rating: number }>("/api/refresh/user");
+      const res = await api.get<{
+        rating: number | null;
+        leetCodeRating: number | null;
+        handle: string | null;
+        leetCodeHandle: string | null;
+      }>("/api/refresh/user");
       setUser((prev) =>
-        prev ? { ...prev, rating: res.data.rating } : prev
+        prev
+          ? {
+              ...prev,
+              rating: res.data.rating,
+              leetCodeRating: res.data.leetCodeRating,
+              handle: res.data.handle,
+              leetCodeHandle: res.data.leetCodeHandle,
+            }
+          : prev
       );
     } catch (err) {
       console.error("Refresh failed", err);
@@ -137,57 +164,108 @@ export default function ProfilePage() {
         {/* Profile Card */}
         <div className="profile-card">
           <div className="profile-info">
-            {user.handle ? (
-              <div className="handle-row">
+            <div className="platform-section">
+              <div className="platform-header">
                 <div>
-                  <h1 className="handle">
-                    <a
-                      href={`https://codeforces.com/profile/${user.handle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: rankInfo.color }}
-                    >
-                      {rankInfo.title === "Legendary Grandmaster" ? (
-                        <>
-                          <span style={{ color: "red" }}>{user.handle![0]}</span>
-                          {user.handle!.slice(1)}
-                        </>
-                      ) : (
-                        user.handle
-                      )}
-                    </a>
-                  </h1>
-                  <p className="rank" style={{ color: rankInfo.color }}>
-                    {rankInfo.title}
-                  </p>
+                  <p className="platform-label">Codeforces</p>
+                  {user.handle ? (
+                    <>
+                      <h1 className="handle">
+                        <a
+                          href={`https://codeforces.com/profile/${user.handle}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: rankInfo.color }}
+                        >
+                          {rankInfo.title === "Legendary Grandmaster" ? (
+                            <>
+                              <span style={{ color: "red" }}>{user.handle![0]}</span>
+                              {user.handle!.slice(1)}
+                            </>
+                          ) : (
+                            user.handle
+                          )}
+                        </a>
+                      </h1>
+                      <p className="rank" style={{ color: rankInfo.color }}>
+                        {rankInfo.title}
+                      </p>
+                    </>
+                  ) : (
+                    <div className="handle-row">
+                      <input
+                        type="text"
+                        className="handle-input"
+                        placeholder="Enter your Codeforces handle"
+                        value={handle}
+                        onChange={(e) => setHandle(e.target.value)}
+                      />
+                      <button
+                        className="submit-btn"
+                        onClick={handleSubmit}
+                        disabled={!handle.trim()}
+                      >
+                        Submit
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <button className="refresh-btn" onClick={refreshProfile}>
-                  ↻ Refresh
-                </button>
+
+                {(user.handle || user.leetCodeHandle) && (
+                  <button className="refresh-btn" onClick={refreshProfile}>
+                    Refresh
+                  </button>
+                )}
               </div>
-            ) : (
-              <div className="handle-row">
-                <input
-                  type="text"
-                  className="handle-input"
-                  placeholder="Enter your Codeforces handle"
-                  value={handle}
-                  onChange={(e) => setHandle(e.target.value)}
-                />
-                <button
-                  className="submit-btn"
-                  onClick={handleSubmit}
-                  disabled={!handle.trim()}
-                >
-                  Submit
-                </button>
+
+              <div className="platform-divider" />
+
+              <div>
+                <p className="platform-label">LeetCode</p>
+                {user.leetCodeHandle ? (
+                  <>
+                    <h2 className="leetcode-handle">
+                      <a
+                        href={`https://leetcode.com/u/${user.leetCodeHandle}/`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {user.leetCodeHandle}
+                      </a>
+                    </h2>
+                    <p className="leetcode-rating">
+                      Rating {user.leetCodeRating ?? "Unrated"}
+                    </p>
+                  </>
+                ) : (
+                  <div className="handle-row">
+                    <input
+                      type="text"
+                      className="handle-input"
+                      placeholder="Enter your LeetCode username"
+                      value={leetCodeHandle}
+                      onChange={(e) => setLeetCodeHandle(e.target.value)}
+                    />
+                    <button
+                      className="submit-btn"
+                      onClick={handleLeetCodeSubmit}
+                      disabled={!leetCodeHandle.trim()}
+                    >
+                      Submit
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
 
             <div className="stats">
               <div className="stat">
                 <p className="label">Rating</p>
                 <p className="value">{user.rating ?? "—"}</p>
+              </div>
+              <div className="stat">
+                <p className="label">LeetCode Rating</p>
+                <p className="value">{user.leetCodeRating ?? "—"}</p>
               </div>
               <div className="stat">
                 <p className="label">Email</p>

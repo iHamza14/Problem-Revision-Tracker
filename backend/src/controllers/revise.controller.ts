@@ -8,11 +8,11 @@ import { getRevisionSolves } from "../services/revise.service";
 
 export const reviseController = async (req: AuthedRequest, res: Response) => {
   try {
-    const { userId, handle } = req.user!;
+    const { userId, handle, leetCodeHandle } = req.user!;
 
-    if (!handle) {
+    if (!handle && !leetCodeHandle) {
       return res.status(400).json({
-        error: "Codeforces handle not linked"
+        error: "No coding platform handle linked"
       });
     }
 
